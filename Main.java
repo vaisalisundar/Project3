@@ -7,14 +7,16 @@ public class Main {
 
     public static void main(String[] args) throws NullPointerException {
 
-        List<Float> pData = new ArrayList<>();
+        List<Integer> TotalActionsAgent6 = new ArrayList<>();
+        List<Integer> TotalActionsAgent7 = new ArrayList<>();
+        List<Integer> TotalActionsAgent8 = new ArrayList<>();
         List<Integer> noOfBumps = new ArrayList<>();
         List<Integer> cellsProcessed = new ArrayList<>();
         List<Integer> finalLength = new ArrayList<>();
         List<Boolean> solvabilty = new ArrayList<>();
         List<Integer> trajectoryLen = new ArrayList<>();
         List<Float> trajectoryDivideLength = new ArrayList<>();
-        for (int l = 0; l < 1; l++) {
+        for (int l = 0; l <20; l++) {
             int dim = 50;
             int values[][] = new int[dim][dim];
             int dummyValues[][] = new int[dim][dim];
@@ -74,7 +76,7 @@ public class Main {
 //            int x1=2;
 //            int y1=2;
 //            int x2=1;
-//            int y2=2;
+//            int y2=1;
             int x1=-1;
             int y1=-1;
             int x2=-1;
@@ -92,16 +94,22 @@ public class Main {
                     do{
                         x2 = min + (int)(Math.random() * ((max - min) + 1));
                         y2 = min + (int)(Math.random() * ((max - min) + 1));
-                    }while(values[x2][y2]==1);
+                    }while( values[x2][y2]==1);
                 }
 
             }
+//            Scanner scan = new Scanner(System.in);
+//            System.out.println("Enter values");
+//            int x1 = scan.nextInt();
+//            int y1 = scan.nextInt();
+//            int x2 = scan.nextInt();
+//            int y2 = scan.nextInt();
             System.out.println("source : "+x1+","+y1);
             System.out.println("target : "+x2+","+y2);
             Solution sol = new Solution();
             //grid is the actual maze
             int[][] grid = values;
-           // int[][] grid ={{3,3,3},{1,1,2},{4,1,4}};
+           //int[][] grid ={{3,1,4},{2,2,1},{1,3,3}};
             //int[][] grid ={{0,0,1,1,1},{1,0,1,1,1},{0,0,1,1,1},{0,1,1,1,1},{0,0,0,0,0}};
 
 
@@ -115,13 +123,15 @@ public class Main {
 
             if (length != -1) {
                 // float ans = sol.RFAstarTest(newGrid,0,0,1,grid);
-               // sol.AgentSix(newGrid, x1, y1, 1, grid,beliefState,dim,x2,y2);
-                //sol.AgentSeven(newGrid, x1, y1, 1, grid,beliefState,dim,x2,y2,confidenceState);
-                sol.AgentEight(newGrid, x1, y1, 1, grid,beliefState,dim,x2,y2,confidenceState,utilityState);
+                int ans1 =sol.AgentSix(newGrid, x1, y1, 1, grid,beliefState,dim,x2,y2);
+                int ans2 =sol.AgentSeven(newGrid, x1, y1, 1, grid,beliefState,dim,x2,y2,confidenceState);
+                int ans3 =sol.AgentEight(newGrid, x1, y1, 1, grid,beliefState,dim,x2,y2,confidenceState,utilityState);
                 System.out.println("source : "+x1+","+y1);
                 System.out.println("target : "+x2+","+y2);
                // System.out.println(ans);
-                //pData.add(p);
+                TotalActionsAgent6.add(ans1);
+                TotalActionsAgent7.add(ans2);
+                TotalActionsAgent8.add(ans3);
                 //float result = (float)ans/(float)length;
                 // System.out.println(ans);
                 // trajectoryLen.add(ans);
@@ -148,25 +158,25 @@ public class Main {
         }
         FileWriter locFile1 = null;
         FileWriter locFile2 = null;
-        //     FileWriter locFile3 = null;
+        FileWriter locFile3 = null;
 //        FileWriter locFile4 = null;
         //       FileWriter locFile5 = null;
         // FileWriter locFile6 = null;
 
 
         try{
-            locFile1 = new FileWriter("finalLen.txt");
-//            locFile2 = new FileWriter("lengthData.txt");
-            locFile2 = new FileWriter("cellsProcessed.txt");
+            locFile1 = new FileWriter("TotalActionsAgent6.txt");
+            locFile2 = new FileWriter("TotalActionsAgent7.txt");
+            locFile3 = new FileWriter("TotalActionsAgent8.txt");
 //            locFile4 = new FileWriter("solvability.txt");
 //            locFile5 = new FileWriter("cellProcessedRFA.txt");
             // locFile6 = new FileWriter("trajectoryDivideLen.txt");
 
 
-            for(int i = 0;i<pData.size();i++){
-                locFile1.write(finalLength.get(i)+"\n");
-                locFile2.write(cellsProcessed.get(i)+"\n");
-                //      locFile3.write(cellsProcessed.get(i)+"\n");
+            for(int i = 0;i<TotalActionsAgent8.size();i++){
+                locFile1.write(TotalActionsAgent6.get(i)+"\n");
+                locFile2.write(TotalActionsAgent7.get(i)+"\n");
+                locFile3.write(TotalActionsAgent8.get(i)+"\n");
 //                locFile4.write(solvabilty.get(i)+"\n");
 //                locFile5.write(cellsProcessedRFA.get(i)+"\n");
                 //   locFile6.write(trajectoryDivideLength.get(i)+"\n");
@@ -174,7 +184,7 @@ public class Main {
             //  locFile6.close();
 //            locFile5.close();
 //            locFile4.close();
-//            locFile3.close();
+           locFile3.close();
             locFile2.close();
             locFile1.close();
         }catch (IOException e){
@@ -376,9 +386,15 @@ class Solution {
         for(int i=0;i<utilityState.length;i++){
 
             for(int j=0;j<utilityState[i].length;j++){
+                if(x==i && y==j){
+                    utilityState[i][j]= confidenceState[i][j]/1;
+                    //utilityState[i][j]= confidenceState[i][j] /(double)(1/(double)maxDistance);
+                }else{
+                    utilityState[i][j] = confidenceState[i][j]/(double)estimateAgent6(x,y,trueGrid,i,j);
+                    //utilityState[i][j] = confidenceState[i][j]/(double)((double)estimateAgent6(x,y,trueGrid,i,j)/(double)maxDistance);
+                }
 
 
-                utilityState[i][j] = confidenceState[i][j]*(double)((double)estimateAgent6(x,y,trueGrid,i,j)/(double)maxDistance);
             }
         }
     }
@@ -402,9 +418,11 @@ class Solution {
         for(int i=0;i< utilityState.length;i++){
             for(int j=0;j< utilityState[i].length;j++){
                 if(x==i && y==j){
-                    utilityState[i][j]= confidenceState[i][j] *(double)(1/(double)maxDistance);
+                    utilityState[i][j]= confidenceState[i][j]/1;
+                    //utilityState[i][j]= confidenceState[i][j] /(double)(1/(double)maxDistance);
                 }else{
-                    utilityState[i][j]= confidenceState[i][j] *((double)estimateAgent6(x,y,trueGrid,i,j)/(double)maxDistance);
+                    utilityState[i][j] = confidenceState[i][j]/(double)estimateAgent6(x,y,trueGrid,i,j);
+                    //utilityState[i][j]= confidenceState[i][j] /((double)estimateAgent6(x,y,trueGrid,i,j)/(double)maxDistance);
                 }
 
 
@@ -459,7 +477,7 @@ class Solution {
 
     private int examineAgent7(int x1,int y1,int x2,int y2,double[][] beliefState,
                         int[][] trueGrid,int[][] dummyGrid,int currRow,
-                        int currCol,double[][] confidenceState,boolean[][] visited,int examinationCounter){
+                        int currCol,double[][] confidenceState,boolean[][] visited){
         //At time t + 1 you attempt to enter (x, y) and find it is blocked?
         // Px,y (t+1) = 0
         // Pi,j(t+1)=Pi,j(t)/ i=0 to dim & j=0 to dim Pi,j(t)  (Summation)
@@ -472,7 +490,7 @@ class Solution {
         }
 
         if(currRow!=x2 || currCol!=y2) {
-            examinationCounter++;
+
             //flat terrain
             //At time t + 1 you examine cell (x, y) of terrain type flat, and fail to find the target?
             //Px,y(t+1) = Px,y(t)* FN(Tr)
@@ -505,7 +523,7 @@ class Solution {
             }
         }else{
             //target is in cell
-            examinationCounter++;
+
             beliefState[currRow][currCol] = 1;
             return -1;
         }
@@ -516,7 +534,7 @@ class Solution {
     //examine function
     private int examine(int x1,int y1,int x2,int y2,double[][] beliefState,
                         int[][] trueGrid,int[][] dummyGrid,int currRow,
-                        int currCol,int examinationCounter){
+                        int currCol){
         //At time t + 1 you attempt to enter (x, y) and find it is blocked?
         // Px,y (t+1) = 0
         // Pi,j(t+1)=Pi,j(t)/ i=0 to dim & j=0 to dim Pi,j(t)  (Summation)
@@ -528,7 +546,7 @@ class Solution {
         }
 
         if(currRow!=x2 || currCol!=y2) {
-            examinationCounter++;
+
             //flat terrain
             //At time t + 1 you examine cell (x, y) of terrain type flat, and fail to find the target?
             //Px,y(t+1) = Px,y(t)* FN(Tr)
@@ -557,7 +575,7 @@ class Solution {
                 return 0;
             }
         }else{
-            examinationCounter++;
+
             //target is in cell
             beliefState[currRow][currCol] = 1;
             return -1;
@@ -812,7 +830,7 @@ class Solution {
     }
 
     //AgentSix - blindfolded Probabilistic sensing
-    public boolean AgentSix(int[][] newGrid, int x1, int y1, int distanceSoFar, int[][] grid,double[][] beliefState,int dim,int x2,int y2) {
+    public int AgentSix(int[][] newGrid, int x1, int y1, int distanceSoFar, int[][] grid,double[][] beliefState,int dim,int x2,int y2) {
         int moves=0;
         int examinationCounter = 0;
         int TotalActions=0;
@@ -828,14 +846,16 @@ class Solution {
         Collections.reverse(track);
 
         for (int i = 0; i < track.size(); i++) {
-            moves++;
+
+            
             int examineResult;
             Candidate canValue = track.get(i);
             if(visited[canValue.row][canValue.col]!=true && i==(track.size()-1)){
                 Candidate newChange = canValue;
-                 examineResult = examine(x1,y1,x2,y2,beliefState,grid,newGrid,canValue.row, canValue.col,examinationCounter);
+                 examineResult = examine(x1,y1,x2,y2,beliefState,grid,newGrid,canValue.row, canValue.col);
                 visited[canValue.row][canValue.col]=true;
                 if(examineResult==1){
+                    moves++;
                     Candidate newSource = track.get(i - 1);
                     double newMax = findMaximumProbability(beliefState);
                     if(max<newMax) {
@@ -858,7 +878,8 @@ class Solution {
                     Collections.reverse(track);
                     i = -1;
                 }else if(examineResult==0){
-
+                    moves++;
+                    examinationCounter++;
                     double newMax = findMaximumProbability(beliefState);
                     if(max<newMax){
                         max = newMax;
@@ -883,15 +904,18 @@ class Solution {
 
                     }
                 } else if(examineResult==-1){
+                    moves++;
+                    examinationCounter++;
                     System.out.println("target found");
                     TotalActions = moves + examinationCounter;
                     System.out.println("TotalAction : "+TotalActions);
                     // RFAstar(newGrid, x1, y1, 1,cellWithMaxProb.row,cellWithMaxProb.col);
-                    return true;
+                    return TotalActions;
                 }
             }else{
-
+                moves++;
                 if(grid[canValue.row][canValue.col]==1){
+
                     newGrid[canValue.row][canValue.col]=1;
                     beliefState[canValue.row][canValue.col]=0;
                     divide(beliefState, canValue.row, canValue.col);
@@ -904,6 +928,7 @@ class Solution {
 
                     int answer = RFAstar(newGrid, newSource.row, newSource.col, 0,cellWithMaxProb.row,cellWithMaxProb.col);
                     while(answer==-1){
+
                         beliefState[cellWithMaxProb.row][cellWithMaxProb.col]=0;
                         divide(beliefState, cellWithMaxProb.row, cellWithMaxProb.col);
                          newMax = findMaximumProbability(beliefState);
@@ -925,12 +950,12 @@ class Solution {
 
         }
         System.out.println("target not found");
-        return false;
+        return TotalActions;
 
     }
 
     //AgentSeven - Successfully finding the target
-    public boolean AgentSeven(int[][] newGrid, int x1, int y1, int distanceSoFar,
+    public int AgentSeven(int[][] newGrid, int x1, int y1, int distanceSoFar,
                               int[][] grid,double[][] beliefState,int dim,int x2,int y2,
                               double[][] confidenceState) {
         int moves=0;
@@ -957,7 +982,7 @@ class Solution {
                 visited[canValue.row][canValue.col]=true;
                 examineResult = examineAgent7(x1,y1,x2,y2,beliefState,grid,newGrid,
                                               canValue.row, canValue.col,confidenceState,
-                                              visited,examinationCounter);
+                                              visited);
 
                 if(examineResult==1){
                     Candidate newSource = track.get(i - 1);
@@ -969,6 +994,7 @@ class Solution {
 
                     int answer = RFAstar(newGrid, newSource.row, newSource.col, 0,cellWithMaxProb.row,cellWithMaxProb.col);
                     while(answer==-1){
+                        visited[cellWithMaxProb.row][cellWithMaxProb.col]=true;
                         beliefState[cellWithMaxProb.row][cellWithMaxProb.col]=0;
                         divide(beliefState, cellWithMaxProb.row, cellWithMaxProb.col);
                         updateConfidenceState(beliefState,confidenceState,grid,visited);
@@ -982,7 +1008,7 @@ class Solution {
                     Collections.reverse(track);
                     i = -1;
                 }else if(examineResult==0){
-
+                    examinationCounter++;
                     double newMax = findMaximumProbability(confidenceState);
                     if(max<newMax){
                         max = newMax;
@@ -990,6 +1016,7 @@ class Solution {
 
                         int answer = RFAstar(newGrid, newChange.row, newChange.col, 0,cellWithMaxProb.row,cellWithMaxProb.col);
                         while(answer==-1){
+                            visited[cellWithMaxProb.row][cellWithMaxProb.col]=true;
                             beliefState[cellWithMaxProb.row][cellWithMaxProb.col]=0;
                             divide(beliefState, cellWithMaxProb.row, cellWithMaxProb.col);
                             updateConfidenceState(beliefState,confidenceState,grid,visited);
@@ -1006,14 +1033,16 @@ class Solution {
 
                     }
                 } else if(examineResult==-1){
+                    examinationCounter++;
                     System.out.println("target found");
-                    TotalActions = moves + examinationCounter;
+                    TotalActions = moves / examinationCounter;
                     System.out.println("TotalAction : "+TotalActions);
                     // RFAstar(newGrid, x1, y1, 1,cellWithMaxProb.row,cellWithMaxProb.col);
-                    return true;
+                    return TotalActions;
                 }
             }else{
                 if(grid[canValue.row][canValue.col]==1){
+                    visited[canValue.row][canValue.col]=true;
                     newGrid[canValue.row][canValue.col]=1;
                     beliefState[canValue.row][canValue.col]=0;
                     divide(beliefState, canValue.row, canValue.col);
@@ -1027,6 +1056,7 @@ class Solution {
 
                     int answer = RFAstar(newGrid, newSource.row, newSource.col, 0,cellWithMaxProb.row,cellWithMaxProb.col);
                     while(answer==-1){
+                        visited[cellWithMaxProb.row][cellWithMaxProb.col]=true;
                         beliefState[cellWithMaxProb.row][cellWithMaxProb.col]=0;
                         divide(beliefState, cellWithMaxProb.row, cellWithMaxProb.col);
                         updateConfidenceState(beliefState,confidenceState,grid,visited);
@@ -1050,11 +1080,11 @@ class Solution {
 
         System.out.println("target not found");
 
-        return false;
+        return TotalActions;
 
     }
 
-    public boolean AgentEight(int[][] newGrid, int x1, int y1, int distanceSoFar,
+    public int AgentEight(int[][] newGrid, int x1, int y1, int distanceSoFar,
                               int[][] grid,double[][] beliefState,int dim,int x2,int y2,
                               double[][] confidenceState,double[][] utilityState) {
         int moves=0;
@@ -1083,11 +1113,11 @@ class Solution {
                 visited[canValue.row][canValue.col]=true;
                 examineResult = examineAgent7(x1,y1,x2,y2,beliefState,grid,newGrid,
                         canValue.row, canValue.col,confidenceState,
-                        visited,examinationCounter);
+                        visited);
 
                 if(examineResult==1){
                     Candidate newSource = track.get(i - 1);
-                    updateUtilityState(utilityState, newChange.row,newChange.col,confidenceState,grid);
+                    updateUtilityState(utilityState, newSource.row,newSource.col,confidenceState,grid);
                     double newMax = findMaximumProbability(utilityState);
                     if(max<newMax) {
                         max = newMax;
@@ -1099,6 +1129,7 @@ class Solution {
 
                     int answer = RFAstar(newGrid, newSource.row, newSource.col, 0,cellWithMaxProb.row,cellWithMaxProb.col);
                     while(answer==-1){
+                        visited[cellWithMaxProb.row][cellWithMaxProb.col] = true;
                         beliefState[cellWithMaxProb.row][cellWithMaxProb.col]=0;
                         divide(beliefState, cellWithMaxProb.row, cellWithMaxProb.col);
                         updateConfidenceState(beliefState,confidenceState,grid,visited);
@@ -1116,6 +1147,7 @@ class Solution {
                     Collections.reverse(track);
                     i = -1;
                 }else if(examineResult==0){
+                    examinationCounter++;
                     updateUtilityState(utilityState, newChange.row, newChange.col, confidenceState,grid);
                     double newMax = findMaximumProbability(utilityState);
                     if(max<newMax) {
@@ -1127,6 +1159,7 @@ class Solution {
                     }
                         int answer = RFAstar(newGrid, newChange.row, newChange.col, 0,cellWithMaxProb.row,cellWithMaxProb.col);
                         while(answer==-1){
+                            visited[cellWithMaxProb.row][cellWithMaxProb.col] = true;
                             beliefState[cellWithMaxProb.row][cellWithMaxProb.col]=0;
                             divide(beliefState, cellWithMaxProb.row, cellWithMaxProb.col);
                             updateConfidenceState(beliefState,confidenceState,grid,visited);
@@ -1145,14 +1178,16 @@ class Solution {
                         i = -1;
 
                 } else if(examineResult==-1){
+                    examinationCounter++;
                     System.out.println("target found");
-                    TotalActions = moves + examinationCounter;
+                    TotalActions = moves / examinationCounter;
                     System.out.println("TotalAction : "+TotalActions);
                     // RFAstar(newGrid, x1, y1, 1,cellWithMaxProb.row,cellWithMaxProb.col);
-                    return true;
+                    return TotalActions;
                 }
             }else{
                 if(grid[canValue.row][canValue.col]==1){
+                    visited[canValue.row][canValue.col]=true;
                     Candidate newSource = track.get(i - 1);
                     newGrid[canValue.row][canValue.col]=1;
                     beliefState[canValue.row][canValue.col]=0;
@@ -1172,6 +1207,7 @@ class Solution {
 
                     int answer = RFAstar(newGrid, newSource.row, newSource.col, 0,cellWithMaxProb.row,cellWithMaxProb.col);
                     while(answer==-1){
+                        visited[cellWithMaxProb.row][cellWithMaxProb.col]=true;
                         beliefState[cellWithMaxProb.row][cellWithMaxProb.col]=0;
                         divide(beliefState, cellWithMaxProb.row, cellWithMaxProb.col);
                         updateConfidenceState(beliefState,confidenceState,grid,visited);
@@ -1199,7 +1235,7 @@ class Solution {
 
         System.out.println("target not found");
 
-        return false;
+        return TotalActions;
 
     }
 
